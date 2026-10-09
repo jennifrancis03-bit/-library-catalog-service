@@ -2,9 +2,9 @@
   "name": "library-catalog-service",
   "version": "1.0.0",
   "description": "Express and Mongoose API for a library catalog.",
-  "main": "server.js",
+  "main": "express-api-folder/server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node express-api-folder/server.js",
     "seed": "node seed.js"
   },
   "dependencies": {

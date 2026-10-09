@@ -68,7 +68,7 @@ For example, `GET /books?genre=<genreId>&search=dune&page=2&limit=5` applies all
 
 ### Postman
 
-Import [`postman/Library Catalog Service.postman_collection.json`](./postman/Library%20Catalog%20Service.postman_collection.json) into Postman. It includes requests for every route, a saved `400` validation example, and collection variables populated by the create requests.
+Import [`express-api-folder/postman/Library Catalog Service.postman_collection.json`](./express-api-folder/postman/Library%20Catalog%20Service.postman_collection.json) into Postman. It includes requests for every route, a saved `400` validation example, and collection variables populated by the create requests.
 
 ## Schema Design
 
@@ -91,5 +91,5 @@ Import [`postman/Library Catalog Service.postman_collection.json`](./postman/Lib
 - `models/Book.js` defines the book schema and copy-count validation.
 - `seed.js` connects through `MONGODB_URI`, replaces the sample catalog, and disconnects when complete.
 - `.env.example` documents the required environment variable without containing real credentials.
-- `app.js` defines the API routes and request validation; `server.js` connects to MongoDB and starts the HTTP server.
-- `postman/Library Catalog Service.postman_collection.json` contains the runnable Postman collection.
+- `express-api-folder/app.js` defines the API routes and request validation; `express-api-folder/server.js` connects to MongoDB and starts the HTTP server.
+- `express-api-folder/postman/Library Catalog Service.postman_collection.json` contains the runnable Postman collection.

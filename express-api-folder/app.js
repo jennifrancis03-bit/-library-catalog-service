@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const Book = require('./models/Book');
-const Genre = require('./models/Genre');
+const Book = require('../models/Book');
+const Genre = require('../models/Genre');
 
 const app = express();
 const BOOK_FIELDS = [
