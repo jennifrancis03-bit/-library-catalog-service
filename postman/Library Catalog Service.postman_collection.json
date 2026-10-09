@@ -11,7 +11,7 @@
       "script": {
         "type": "text/javascript",
         "exec": [
-          "if (!pm.collectionVariables.get('runId')) {",
+          "if (pm.info.requestName === 'Create genre' || !pm.collectionVariables.get('runId')) {",
           "  pm.collectionVariables.set('runId', Date.now().toString().slice(-8));",
           "}"
         ]
