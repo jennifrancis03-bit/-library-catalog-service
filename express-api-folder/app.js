@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Book = require('../models/Book');
 const Genre = require('../models/Genre');
+const authRoutes = require('../routes/auth');
+const bookMutationRoutes = require('../routes/books');
+const userRoutes = require('../routes/users');
 
 const app = express();
 const BOOK_FIELDS = [
@@ -134,6 +137,9 @@ async function requireUniqueGenre(body, currentId) {
 
 app.disable('x-powered-by');
 app.use(express.json());
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/books', bookMutationRoutes);
 
 app.get('/genres', asyncRoute(async (request, response) => {
   const genres = await Genre.find().sort({ name: 1 });

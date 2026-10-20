@@ -10,11 +10,11 @@ A REST API and MongoDB data layer for a library catalog, built with Node.js, Exp
 ## Setup
 
 1. Install dependencies with `npm install`.
-2. Copy `.env.example` to `.env` and replace its placeholder with your MongoDB connection URI. Keep `.env` private and do not commit database credentials.
+2. Copy `.env.example` to `.env`, replace its MongoDB URI placeholder, and set `JWT_SECRET` to a long, random secret (for example, generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`). Keep `.env` private and do not commit secrets.
 3. Populate the database with `npm run seed`.
 4. Start the API with `npm start`. It listens on port `3000` by default; set `PORT` to use a different port.
 
-The seed script removes existing books and genres before inserting the four genres and twenty books, so running it again produces the same catalog rather than duplicates. Book ISBNs are unique ISBN-13 values with valid check digits. Each book points to its genre by MongoDB ObjectId.
+The seed script removes existing books and genres before inserting the four genres and twenty books, so running it again produces the same catalog rather than duplicates. It also ensures exactly one librarian account exists and demotes any other librarians. Book ISBNs are unique ISBN-13 values with valid check digits. Each book points to its genre by MongoDB ObjectId.
 
 ## API
 
@@ -42,9 +42,28 @@ Genres cannot be deleted while any books reference them; the API returns `409` a
 | --- | --- | --- |
 | `GET` | `/books` | List books, optionally filtered, searched, and paginated |
 | `GET` | `/books/:id` | Read one book; `404` if absent |
-| `POST` | `/books` | Create a book |
-| `PUT` | `/books/:id` | Replace a book; all required fields are required |
-| `DELETE` | `/books/:id` | Delete a book |
+| `POST` | `/books` | Create a book; librarian authentication required |
+| `PUT` | `/books/:id` | Replace a book; librarian authentication required |
+| `DELETE` | `/books/:id` | Delete a book; librarian authentication required |
+
+### Authentication and users
+
+| Method | Endpoint | Behavior |
+| --- | --- | --- |
+| `POST` | `/api/auth/register` | Create a patron account with `username`, `email`, and `password` |
+| `POST` | `/api/auth/login` | Verify email and password and set the authentication cookie |
+| `POST` | `/api/auth/logout` | Clear the authentication cookie |
+| `GET` | `/api/users/profile` | Return the authenticated caller's profile |
+
+The seed librarian is `librarian@example.com` with password `LibraryTest123!`. Use this account only for local testing; change the password before exposing a seeded database. Newly registered users are patrons, and registration cannot set a role. Book mutations accept the login cookie or an `Authorization: Bearer <token>` header; anonymous requests receive `401`, and patrons receive `403`.
+
+### Token Storage
+
+The API issues a short-lived (15-minute) signed JWT at login and stores it in a `library_token` cookie with `HttpOnly`, `SameSite=Strict`, and `Path=/` attributes. In production the cookie is also marked `Secure`, so browsers send it only over HTTPS. `HttpOnly` prevents ordinary browser JavaScript from reading the token, reducing the impact of token theft through cross-site scripting compared with storing a token in `localStorage`; it does not prevent injected scripts from making requests as the user while they run. A `localStorage` token would be straightforward to attach as a bearer header and useful across some client setups, but any script executing in the origin could read and exfiltrate it.
+
+The cookie trade-off is that browsers attach it automatically, so cookie-based authentication needs cross-site request protections. This API sets `SameSite=Strict`, accepts JSON requests, and does not enable cross-origin credentialed requests. Clients must make same-site requests and keep any future CORS policy restrictive; a deployment that needs cross-site clients should add an explicit CSRF defense rather than weakening cookie policy without replacement.
+
+Logout expires the cookie in the browser. Tokens are stateless and are not kept in a server-side session or blocklist, so clearing the cookie logs out that client but does not revoke a token copied elsewhere before expiration; the 15-minute lifetime limits that exposure. The profile endpoint derives the account from the verified token and never accepts a client-supplied user ID.
 
 Book create/update requests require string fields `title`, `author`, `isbn`, `description`, and `coverImage`; non-negative integer fields `totalCopies` and `availableCopies`; and `genre`, a string containing an existing Genre ObjectId. `availableCopies` cannot exceed `totalCopies`.
 
