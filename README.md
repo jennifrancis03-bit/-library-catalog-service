@@ -16,6 +16,30 @@ A REST API and MongoDB data layer for a library catalog, built with Node.js, Exp
 
 The seed script removes existing books and genres before inserting the four genres and twenty books, so running it again produces the same catalog rather than duplicates. It also ensures exactly one librarian account exists and demotes any other librarians. Book ISBNs are unique ISBN-13 values with valid check digits. Each book points to its genre by MongoDB ObjectId.
 
+## Patron Catalog
+
+The Express app also serves a responsive patron-facing catalog at `http://localhost:3000` after setup. Browse the collection, choose a genre, search by title or author, and open a book for its full details. Search waits 400 ms after typing before requesting results. Genre and search filters are sent together to the API, so both narrow the same result set; the genre filter is server-side rather than downloading the whole catalog to the browser. Search, genre, page, and selected book are reflected in the URL.
+
+The catalog requires the API and MongoDB to be running. Use the setup steps above, then open the local address and try browsing, selecting a genre, searching for a title or author, and opening a book. List and detail requests show loading, error, and empty or not-found states.
+
+Repository: [jennifrancis03-bit/-library-catalog-service](https://github.com/jennifrancis03-bit/-library-catalog-service)
+
+### Assignment Checklist
+
+| Requirement | Status | Implementation |
+| --- | --- | --- |
+| Responsive book grid with cover, title, author, and genre | Complete | `public/app.js` renders book cards; `public/styles.css` reflows from four columns on desktop to two on narrow screens. |
+| Book detail page with full information and larger cover | Complete | Select a card to open its detail view; title, author, description, genre, availability, ISBN, and cover are shown. |
+| Genre filter | Complete | Genre choices are loaded from `GET /genres`; filtering is performed by the API. |
+| Debounced title/author search | Complete | Search waits 400 ms after typing and uses the API's title/author search. |
+| Genre and search filters combine | Complete | Both `genre` and `search` are sent together on `GET /books`; filter state is preserved in the URL. |
+| Loading, error, and zero-results states | Complete | Catalog, genre, and detail requests show visible progress or error feedback; no-match results have a distinct empty state. |
+| Invalid or missing book ID | Complete | The detail view shows a not-found message and a link back to the catalog. |
+| Setup instructions and repository link | Complete | See [Setup](#setup) and the repository link above. |
+| Browse, filter, search, and open-detail demo recording/GIF | Pending | Add a short recording or GIF link here before final submission. |
+
+The demo should show this flow: browse the collection, select a genre, search while that genre remains selected, then open a book detail page.
+
 ## API
 
 All routes use JSON. Create requests return `201`, reads and updates return `200`, and successful deletes return `204` with no response body. A missing Book or Genre returns `404`. Invalid request data returns `400` with a field-specific JSON message, for example:

@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 const Book = require('../models/Book');
 const Genre = require('../models/Genre');
 const authRoutes = require('../routes/auth');
@@ -137,6 +138,7 @@ async function requireUniqueGenre(body, currentId) {
 
 app.disable('x-powered-by');
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/books', bookMutationRoutes);

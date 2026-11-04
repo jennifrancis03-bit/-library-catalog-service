@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#183f38">
+    <meta name="description" content="Browse the Commonplace Library catalog and find your next story.">
+    <title>Commonplace Library | Catalog</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Commonplace Library home">
+        <span class="brand-mark" aria-hidden="true">C</span>
+        <span class="brand-name">COMMONPLACE <span>LIBRARY</span></span>
+      </a>
+      <a class="header-link" href="#catalogue">The collection <span aria-hidden="true">&#8599;</span></a>
+    </header>
+
+    <main id="catalogue" class="page-wrap">
+      <section id="catalogue-view" class="catalogue-view" aria-labelledby="page-title">
+        <div class="intro-row">
+          <div>
+            <p class="eyebrow"><span class="eyebrow-line"></span> The reading room is open</p>
+            <h1 id="page-title">Find your next<br><em>good story.</em></h1>
+          </div>
+          <p class="intro-note">A thoughtful little collection of mysteries, imagined worlds, and lives worth getting lost in.</p>
+        </div>
+
+        <section class="catalogue-tools" aria-label="Catalog filters">
+          <label class="search-field" for="search-input">
+            <span class="field-label">Search the shelves</span>
+            <span class="input-wrap">
+              <span class="search-mark" aria-hidden="true">&#8981;</span>
+              <input id="search-input" type="search" name="search" placeholder="Title or author" autocomplete="off">
+            </span>
+          </label>
+          <label class="genre-field" for="genre-select">
+            <span class="field-label">Browse by genre</span>
+            <select id="genre-select" name="genre" disabled>
+              <option value="">Loading genres...</option>
+            </select>
+          </label>
+        </section>
+        <div id="genre-state" class="genre-state" role="status" aria-live="polite"></div>
+
+        <div class="results-heading">
+          <h2>On the shelves <span class="heading-rule"></span></h2>
+          <p id="result-summary" class="result-summary" aria-live="polite"></p>
+        </div>
+        <div id="result-state" class="result-state" role="status" aria-live="polite"></div>
+        <div id="book-grid" class="book-grid" aria-busy="false"></div>
+        <nav id="pagination" class="pagination" aria-label="Catalog pages"></nav>
+      </section>
+
+      <section id="detail-view" class="detail-view" aria-live="polite" hidden></section>
+    </main>
+
+    <footer class="site-footer">
+      <span>COMMONPLACE LIBRARY</span>
+      <span>Good books make good company.</span>
+    </footer>
+  </body>
+</html>
