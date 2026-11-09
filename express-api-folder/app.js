@@ -6,6 +6,8 @@ const Genre = require('../models/Genre');
 const authRoutes = require('../routes/auth');
 const bookMutationRoutes = require('../routes/books');
 const userRoutes = require('../routes/users');
+const borrowRequestRoutes = require('../routes/borrowRequests');
+const bookingRoutes = require('../routes/bookings');
 
 const app = express();
 const BOOK_FIELDS = [
@@ -139,8 +141,16 @@ async function requireUniqueGenre(body, currentId) {
 app.disable('x-powered-by');
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
+app.use('/admin', express.static(path.join(__dirname, '../admin-frontend/dist')));
+app.get(['/admin', '/admin/*'], (request, response, next) => {
+  response.sendFile(path.join(__dirname, '../admin-frontend/dist/index.html'), (error) => {
+    if (error) next();
+  });
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/borrow-requests', borrowRequestRoutes);
+app.use('/api/bookings', bookingRoutes);
 app.use('/books', bookMutationRoutes);
 
 app.get('/genres', asyncRoute(async (request, response) => {

@@ -13,6 +13,7 @@ A REST API and MongoDB data layer for a library catalog, built with Node.js, Exp
 2. Copy `.env.example` to `.env`, replace its MongoDB URI placeholder, and set `JWT_SECRET` to a long, random secret (for example, generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`). Keep `.env` private and do not commit secrets.
 3. Populate the database with `npm run seed`.
 4. Start the API with `npm start`. It listens on port `3000` by default; set `PORT` to use a different port.
+5. To run the React librarian console in development, install dependencies in `admin-frontend` and run `npm run dev`. Vite proxies API requests to `http://localhost:3000`. To serve it with Express, run `npm run build` in `admin-frontend`; the service then serves it at `/admin/`.
 
 The seed script removes existing books and genres before inserting the four genres and twenty books, so running it again produces the same catalog rather than duplicates. It also ensures exactly one librarian account exists and demotes any other librarians. Book ISBNs are unique ISBN-13 values with valid check digits. Each book points to its genre by MongoDB ObjectId.
 
@@ -39,8 +40,10 @@ Repository: [jennifrancis03-bit/-library-catalog-service](https://github.com/jen
 | Persisted reading list | Complete | Add, remove, and clear actions store patron selections in `localStorage`. |
 | API-backed login and registration | Complete | The UI calls the auth endpoints, shows API errors, and restores sessions from the profile endpoint. |
 | Protected booking route | Complete | Direct visits to `/booking` are checked against the current profile and redirected to `/login` when needed. |
-| Local space-booking form | Complete | Space, date, start time, and end time are captured without submitting a booking request. |
-| Assignment demo recording | Pending | Record adding a book, refreshing, removing it, testing the logged-out booking redirect, logging in, and filling the booking form. |
+| Borrow requests and late fines | Complete | Authenticated patrons can request available books; librarians update status and the API calculates return fines. |
+| Conflict-checked space bookings | Complete | The API rejects intersecting bookings for the same space and date. |
+| Librarian admin console | Complete | React admin pages manage books, borrow requests, and space bookings using the API. |
+| Assignment demo recording | Pending | Record a borrow request, late return and fine, then a rejected overlapping booking. |
 
 The catalog demo should show this flow: browse the collection, select a genre, search while that genre remains selected, then open a book detail page.
 
@@ -50,9 +53,9 @@ The patron UI adds `/reading-list`, `/login`, `/register`, and `/booking` pages.
 
 The reading list uses browser `localStorage` rather than backend synchronization. It is personal convenience state, not an account-owned collection, and the service has no reading-list endpoint or model. Saving it locally keeps add/remove/clear immediate and lets the list survive refreshes without introducing a database migration or API contract. The trade-off is that the list is limited to that browser and device and is cleared if its site storage is cleared.
 
-Login and registration submit to `POST /api/auth/login` and `POST /api/auth/register`. A successful registration is followed by login so the new patron can continue directly; visible form feedback reports API validation/authentication failures. The API's HttpOnly cookie is used for the current session, and `GET /api/users/profile` restores the signed-in state on page load. The space form captures space, date, start time, and end time in page-local form state; it does not submit a booking to the API yet.
+Login and registration submit to `POST /api/auth/login` and `POST /api/auth/register`. A successful registration is followed by login so the new patron can continue directly; visible form feedback reports API validation/authentication failures. The API's HttpOnly cookie is used for the current session, and `GET /api/users/profile` restores the signed-in state on page load. Space booking form submissions are validated and checked for conflicts by the backend.
 
-For the assignment demonstration, add a book to the reading list, refresh and verify it remains, remove it, open `/booking` while logged out and verify the login redirect, log in, then fill in all four booking fields and save the local form details.
+For the Assignment 4 demonstration, add a book to the reading list, refresh and verify it remains, remove it, open `/booking` while logged out and verify the login redirect, log in, then fill in all four booking fields.
 
 ## API
 
@@ -94,6 +97,29 @@ Genres cannot be deleted while any books reference them; the API returns `409` a
 | `GET` | `/api/users/profile` | Return the authenticated caller's profile |
 
 The seed librarian is `librarian@example.com` with password `LibraryTest123!`. Use this account only for local testing; change the password before exposing a seeded database. Newly registered users are patrons, and registration cannot set a role. Book mutations accept the login cookie or an `Authorization: Bearer <token>` header; anonymous requests receive `401`, and patrons receive `403`.
+
+### Borrow requests
+
+| Method | Endpoint | Behavior |
+| --- | --- | --- |
+| `POST` | `/api/borrow-requests` | Authenticated patron requests a book with `{ "bookId": "<id>" }`; returns `409` if no copies are available. |
+| `GET` | `/api/borrow-requests` | Librarian-only list of requests, with book and patron details. |
+| `PATCH` | `/api/borrow-requests/:id` | Librarian-only status update using `{ "status": "approved" }`, `late`, or `returned`. |
+
+A new request reserves one available copy and receives a due date 14 days after request time. Returning a request restores one copy. A returned request cannot be changed again. Fines are calculated only by the server: the rule is **$0.25 for each late day or partial day**, rounded up to the next day, and zero when returned by the due date. `fine` and `returnedAt` are not accepted from clients.
+
+### Space bookings
+
+| Method | Endpoint | Behavior |
+| --- | --- | --- |
+| `POST` | `/api/bookings` | Authenticated patron creates a booking with `space`, `date` (`YYYY-MM-DD`), `startTime`, and `endTime` (`HH:mm`). |
+| `GET` | `/api/bookings` | Librarian-only list of all bookings, with patron details. |
+
+Before creating a booking, the API searches existing bookings with the same space and date and rejects with `409` when `existing.startTime < requested.endTime` **and** `existing.endTime > requested.startTime`. This strict interval test rejects partial overlaps and containment but allows adjacent bookings where one ends exactly as the next begins. The check is performed by the server, not just by the form.
+
+### Librarian console
+
+The React admin console is in `admin-frontend/` and is served at `/admin/` after a production build. It checks `/api/users/profile` and requires the `librarian` role. Its Books page uses the existing `/books` CRUD API; Borrow Requests provides server-backed status updates and displays server-computed fines; Bookings lists current server data.
 
 ### Token Storage
 

@@ -337,7 +337,10 @@ function renderReadingList() {
             <p>${escapeHtml(book.author || 'Unknown author')}</p>
             <span class="book-genre">${escapeHtml(book.genre || 'Unclassified')}</span>
           </div>
-          <button class="reading-list-button remove-reading-list-button" type="button" data-action="remove-book" data-book-id="${escapeHtml(book.id)}">Remove</button>
+          <div class="saved-book-actions">
+            <button class="reading-list-button" type="button" data-action="request-book" data-book-id="${escapeHtml(book.id)}">Request to borrow</button>
+            <button class="reading-list-button remove-reading-list-button" type="button" data-action="remove-book" data-book-id="${escapeHtml(book.id)}">Remove</button>
+          </div>
         </article>`).join('')}</div>
         <button class="state-button clear-list-button" type="button" data-action="clear-list">Clear reading list</button>`
     : '<div class="empty-reading-list"><p class="state-title">Your reading list is empty.</p><p class="state-copy">Add a book from the collection and it will be saved here.</p><a class="state-button" href="/" data-route>Browse the collection</a></div>';
@@ -400,7 +403,7 @@ function renderBookingForm() {
         </div>
         <p class="form-feedback" data-form-feedback role="status" aria-live="polite" hidden></p>
         <button class="primary-button" type="submit">Save booking details</button>
-        <p class="form-hint">This form saves your details in this page only. Booking submission will be connected next week.</p>
+        <p class="form-hint">Booking times are checked against existing reservations for the same space and date.</p>
       </form>
     </div>`;
 }
@@ -425,7 +428,7 @@ function navigate(path) {
 }
 
 function allowedReturnPath(value) {
-  return ['/booking', '/reading-list', '/'].includes(value) ? value : '/';
+  return ['/booking', '/reading-list', '/admin/', '/'].includes(value) ? value : '/';
 }
 
 function readUrl() {
@@ -533,6 +536,23 @@ document.addEventListener('click', (event) => {
       ? 'On your reading list'
       : 'Add to reading list';
     button.disabled = true;
+  } else if (action === 'request-book') {
+    const button = event.target.closest('[data-action="request-book"]');
+    button.disabled = true;
+    button.textContent = 'Requesting...';
+    requestJson('/api/borrow-requests', undefined, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookId: button.dataset.bookId }),
+    })
+      .then(({ borrowRequest }) => {
+        state.readingListMessage = `Borrow request created. Your due date is ${new Date(borrowRequest.dueAt).toLocaleDateString()}.`;
+        renderReadingList();
+      })
+      .catch((error) => {
+        state.readingListMessage = error.message || 'Could not create a borrow request.';
+        renderReadingList();
+      });
   } else if (action === 'remove-book') {
     const bookId = event.target.closest('[data-action="remove-book"]').dataset.bookId;
     state.readingList = state.readingList.filter((book) => book.id !== bookId);
@@ -638,6 +658,10 @@ document.addEventListener('submit', async (event) => {
       state.authError = '';
       updateAuthNavigation();
       const destination = allowedReturnPath(values.returnTo);
+      if (destination === '/admin/') {
+        window.location.assign(destination);
+        return;
+      }
       navigate(destination);
     } catch (error) {
       feedback.textContent = accountCreated
@@ -657,8 +681,26 @@ document.addEventListener('submit', async (event) => {
       feedback.setAttribute('role', 'alert');
       return;
     }
-    feedback.setAttribute('role', 'status');
-    feedback.textContent = `Details captured locally: ${values.space} on ${values.date}, ${values.startTime}–${values.endTime}. No booking was submitted.`;
+    const submitButton = form.querySelector('[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Submitting...';
+    try {
+      await requestJson('/api/bookings', undefined, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
+      feedback.setAttribute('role', 'status');
+      feedback.textContent = 'Your space booking was created.';
+      state.booking = { space: '', date: '', startTime: '', endTime: '' };
+      form.reset();
+    } catch (error) {
+      feedback.setAttribute('role', 'alert');
+      feedback.textContent = error.message || 'Could not create this booking.';
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Save booking details';
+    }
   }
 });
 

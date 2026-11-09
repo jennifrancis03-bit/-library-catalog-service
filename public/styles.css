@@ -312,6 +312,8 @@ h1 em { color: var(--green); font-weight: 400; }
 .empty-reading-list .state-copy { margin-bottom: 18px; }
 .saved-book-list { display: grid; gap: 12px; }
 .saved-book { display: grid; grid-template-columns: 68px minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 14px; border: 1px solid var(--line); background: var(--white); }
+.saved-book-actions { display: grid; justify-items: end; gap: 4px; }
+.saved-book-actions .reading-list-button { margin: 0; }
 .saved-book .saved-book-cover { width: 68px; aspect-ratio: 0.72; }
 .saved-book-cover .cover-fallback { padding: 8px; }
 .saved-book-cover .cover-fallback small { font-size: 6px; }
@@ -444,7 +446,7 @@ h1 em { color: var(--green); font-weight: 400; }
   .saved-book { grid-template-columns: 52px minmax(0, 1fr); gap: 12px; }
   .saved-book .saved-book-cover { width: 52px; }
   .saved-book-copy h2 { font-size: 17px; }
-  .remove-reading-list-button { grid-column: 2; justify-self: start; }
+  .saved-book-actions { grid-column: 2; justify-items: start; }
   .time-fields { grid-template-columns: 1fr; }
   .site-footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 3px; padding: 14px 20px; }
 }

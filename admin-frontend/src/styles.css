@@ -1,0 +1,64 @@
+:root {
+  color: #1d2925;
+  background: #f4f3ec;
+  font-family: "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+.admin-shell { min-height: 100vh; }
+.admin-header { display: flex; align-items: center; gap: 30px; min-height: 70px; padding: 12px clamp(18px, 4vw, 56px); color: #fffefa; background: #183f38; border-bottom: 4px solid #d9ae52; }
+.admin-brand { color: #fffefa; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; text-decoration: none; white-space: nowrap; }
+.admin-brand span { margin-left: 6px; color: #d9ae52; font-weight: 400; }
+.admin-header nav { display: flex; gap: 20px; margin-right: auto; }
+.admin-header nav a { color: #dce5dc; font-size: 13px; text-decoration: none; }
+.admin-header nav a[aria-current="page"] { color: #fffefa; text-decoration: underline; text-decoration-color: #d9ae52; text-underline-offset: 7px; }
+.admin-user { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+.admin-main { width: min(1200px, calc(100% - 36px)); margin: 0 auto; padding: 38px 0 70px; }
+.page-heading { margin-bottom: 26px; }
+.page-heading h1 { margin: 0; font: 400 clamp(36px, 5vw, 52px)/1.1 Georgia, serif; }
+.eyebrow { margin: 0 0 7px; color: #b94f39; font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+.admin-content { display: grid; gap: 22px; }
+.editor-card, .table-card, .status-panel { padding: clamp(18px, 3vw, 30px); border: 1px solid #d8d9d0; background: #fffefa; }
+.status-panel { width: min(560px, calc(100% - 36px)); margin: 12vh auto; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.section-heading h2 { margin: 0; font: 400 24px Georgia, serif; }
+.form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; margin-bottom: 18px; }
+.form-grid label { display: grid; gap: 6px; color: #68726d; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; }
+.form-grid .wide-field { grid-column: span 2; }
+.form-grid input, .form-grid select, .form-grid textarea, td select { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid #c9cec5; border-radius: 2px; color: #1d2925; background: #fffefa; }
+.form-grid textarea { min-height: 80px; resize: vertical; }
+.primary-button, .secondary-button, .danger-button, .button-link { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; padding: 7px 12px; border: 1px solid #183f38; border-radius: 2px; font-size: 12px; text-decoration: none; }
+.primary-button, .button-link { color: #fffefa; background: #183f38; }
+.secondary-button { color: #183f38; background: transparent; }
+.danger-button { color: #a23e2c; border-color: #b94f39; background: transparent; }
+.primary-button:disabled { opacity: 0.55; cursor: wait; }
+.small-button { min-height: 30px; padding: 5px 9px; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th, td { padding: 12px 10px; border-bottom: 1px solid #e1e3dc; vertical-align: middle; }
+th { color: #68726d; font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; }
+td { font-size: 13px; }
+.table-actions { display: flex; gap: 7px; }
+.error-message { color: #a23e2c; font-size: 13px; }
+.empty-message, .status-panel > p { color: #68726d; }
+
+@media (max-width: 850px) {
+  .admin-header { flex-wrap: wrap; gap: 12px 20px; }
+  .admin-header nav { order: 3; width: 100%; overflow-x: auto; padding: 5px 0; }
+  .admin-user { margin-left: auto; }
+  .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .admin-main { padding-top: 26px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .wide-field { grid-column: auto; }
+  .admin-header nav { gap: 16px; }
+  .admin-header nav a { white-space: nowrap; }
+  .admin-brand { font-size: 11px; }
+}
