@@ -287,6 +287,10 @@ app.delete('/books/:id', asyncRoute(async (request, response) => {
   response.status(204).end();
 }));
 
+app.get(['/login', '/register', '/booking', '/reading-list'], (request, response) => {
+  response.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
 app.use((request, response) => {
   response.status(404).json({ message: 'Endpoint not found.' });
 });

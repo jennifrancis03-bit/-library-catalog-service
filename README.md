@@ -36,9 +36,23 @@ Repository: [jennifrancis03-bit/-library-catalog-service](https://github.com/jen
 | Loading, error, and zero-results states | Complete | Catalog, genre, and detail requests show visible progress or error feedback; no-match results have a distinct empty state. |
 | Invalid or missing book ID | Complete | The detail view shows a not-found message and a link back to the catalog. |
 | Setup instructions and repository link | Complete | See [Setup](#setup) and the repository link above. |
-| Browse, filter, search, and open-detail demo recording/GIF | Pending | Add a short recording or GIF link here before final submission. |
+| Persisted reading list | Complete | Add, remove, and clear actions store patron selections in `localStorage`. |
+| API-backed login and registration | Complete | The UI calls the auth endpoints, shows API errors, and restores sessions from the profile endpoint. |
+| Protected booking route | Complete | Direct visits to `/booking` are checked against the current profile and redirected to `/login` when needed. |
+| Local space-booking form | Complete | Space, date, start time, and end time are captured without submitting a booking request. |
+| Assignment demo recording | Pending | Record adding a book, refreshing, removing it, testing the logged-out booking redirect, logging in, and filling the booking form. |
 
-The demo should show this flow: browse the collection, select a genre, search while that genre remains selected, then open a book detail page.
+The catalog demo should show this flow: browse the collection, select a genre, search while that genre remains selected, then open a book detail page.
+
+### Reading List, Authentication, and Space Booking
+
+The patron UI adds `/reading-list`, `/login`, `/register`, and `/booking` pages. The Express app serves the UI shell for these paths so they work when opened directly or refreshed. The booking page checks the authenticated profile before rendering; unauthenticated visitors are sent to `/login` and returned to `/booking` after a successful sign-in.
+
+The reading list uses browser `localStorage` rather than backend synchronization. It is personal convenience state, not an account-owned collection, and the service has no reading-list endpoint or model. Saving it locally keeps add/remove/clear immediate and lets the list survive refreshes without introducing a database migration or API contract. The trade-off is that the list is limited to that browser and device and is cleared if its site storage is cleared.
+
+Login and registration submit to `POST /api/auth/login` and `POST /api/auth/register`. A successful registration is followed by login so the new patron can continue directly; visible form feedback reports API validation/authentication failures. The API's HttpOnly cookie is used for the current session, and `GET /api/users/profile` restores the signed-in state on page load. The space form captures space, date, start time, and end time in page-local form state; it does not submit a booking to the API yet.
+
+For the assignment demonstration, add a book to the reading list, refresh and verify it remains, remove it, open `/booking` while logged out and verify the login redirect, log in, then fill in all four booking fields and save the local form details.
 
 ## API
 

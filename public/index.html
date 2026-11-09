@@ -15,10 +15,16 @@
         <span class="brand-mark" aria-hidden="true">C</span>
         <span class="brand-name">COMMONPLACE <span>LIBRARY</span></span>
       </a>
-      <a class="header-link" href="#catalogue">The collection <span aria-hidden="true">&#8599;</span></a>
+      <nav class="header-nav" aria-label="Main navigation">
+        <a class="header-link" href="/" data-route>The collection</a>
+        <a class="header-link" href="/reading-list" data-route>Reading list <span id="reading-list-count" class="nav-count">0</span></a>
+        <a class="header-link" href="/booking" data-route>Book a space</a>
+        <span id="auth-nav" class="auth-nav"></span>
+      </nav>
     </header>
 
     <main id="catalogue" class="page-wrap">
+      <section id="feature-view" class="feature-view" aria-live="polite" hidden></section>
       <section id="catalogue-view" class="catalogue-view" aria-labelledby="page-title">
         <div class="intro-row">
           <div>
