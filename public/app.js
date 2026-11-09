@@ -431,6 +431,14 @@ function allowedReturnPath(value) {
 function readUrl() {
   const route = window.location.pathname.replace(/\/+$/, '') || '/';
   if (route === '/login' || route === '/register' || route === '/booking' || route === '/reading-list') {
+    if (route === '/booking' && state.authStatus === 'loading') {
+      featureView.hidden = false;
+      catalogueView.hidden = true;
+      detailView.hidden = true;
+      featureView.innerHTML = '<div class="form-panel"><p class="state-copy" role="status">Checking your sign-in status...</p></div>';
+      updateAuthNavigation();
+      return;
+    }
     if (route === '/booking' && state.authStatus === 'ready' && !state.currentUser) {
       window.history.replaceState({}, '', `/login?returnTo=${encodeURIComponent('/booking')}`);
       renderFeaturePage('/login');
