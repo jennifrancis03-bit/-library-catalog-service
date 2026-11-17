@@ -1,7 +1,10 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  base: '/admin/',
+  base: process.env.VITE_BASE_PATH || '/admin/',
+  test: {
+    environment: 'jsdom',
+  },
   server: {
     proxy: {
       '/api': 'http://localhost:3000',

@@ -21,17 +21,19 @@ function readCookie(request, name) {
 
 function setAuthCookie(response, token) {
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  const sameSite = process.env.NODE_ENV === 'production' ? 'None' : 'Strict';
   response.setHeader(
     'Set-Cookie',
-    `${TOKEN_COOKIE}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${TOKEN_MAX_AGE_SECONDS}${secure}`,
+    `${TOKEN_COOKIE}=${token}; HttpOnly; SameSite=${sameSite}; Path=/; Max-Age=${TOKEN_MAX_AGE_SECONDS}${secure}`,
   );
 }
 
 function clearAuthCookie(response) {
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  const sameSite = process.env.NODE_ENV === 'production' ? 'None' : 'Strict';
   response.setHeader(
     'Set-Cookie',
-    `${TOKEN_COOKIE}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT${secure}`,
+    `${TOKEN_COOKIE}=; HttpOnly; SameSite=${sameSite}; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT${secure}`,
   );
 }
 

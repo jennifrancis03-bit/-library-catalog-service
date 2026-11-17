@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: library-catalog-api
+    runtime: node
+    rootDir: .
+    buildCommand: npm ci && npm --prefix admin-frontend ci && npm --prefix admin-frontend run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_ORIGIN
+        value: https://library-catalog-admin.onrender.com
+
+  - type: static
+    name: library-catalog-admin
+    rootDir: admin-frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://library-catalog-api.onrender.com
+      - key: VITE_BASE_PATH
+        value: /

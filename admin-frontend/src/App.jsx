@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getErrorMessage, requestJson } from './api.js';
 import AdminBooksPage from './pages/admin/AdminBooksPage.jsx';
 import AdminBorrowRequestsPage from './pages/admin/AdminBorrowRequestsPage.jsx';
@@ -9,6 +9,13 @@ const pages = {
   '#/borrow-requests': { title: 'Borrow requests', component: AdminBorrowRequestsPage },
   '#/bookings': { title: 'Space bookings', component: AdminBookingsPage },
 };
+
+function getLoginUrl() {
+  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+  const loginUrl = new URL('/login', apiBaseUrl || window.location.origin);
+  loginUrl.searchParams.set('returnTo', '/admin/');
+  return loginUrl.href;
+}
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -41,7 +48,7 @@ export default function App() {
   async function logout() {
     try {
       await requestJson('/api/auth/logout', { method: 'POST' });
-      window.location.assign('/login?returnTo=%2Fadmin%2F');
+      window.location.assign(getLoginUrl());
     } catch (error) {
       setAuthState((current) => ({ ...current, error: getErrorMessage(error) }));
     }
@@ -52,7 +59,7 @@ export default function App() {
     return (
       <main className="status-panel">
         <p className="error-message" role="alert">{authState.error}</p>
-        <a className="button-link" href="/login?returnTo=%2Fadmin%2F">Log in</a>
+        <a className="button-link" href={getLoginUrl()}>Log in</a>
       </main>
     );
   }

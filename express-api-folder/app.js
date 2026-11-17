@@ -10,6 +10,10 @@ const borrowRequestRoutes = require('../routes/borrowRequests');
 const bookingRoutes = require('../routes/bookings');
 
 const app = express();
+const configuredFrontendOrigins = () => (process.env.FRONTEND_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 const BOOK_FIELDS = [
   'title',
   'author',
@@ -139,6 +143,29 @@ async function requireUniqueGenre(body, currentId) {
 }
 
 app.disable('x-powered-by');
+app.use((request, response, next) => {
+  const origin = request.get('Origin');
+  if (!origin) return next();
+
+  const forwardedProtocol = request.get('x-forwarded-proto');
+  const protocol = forwardedProtocol ? forwardedProtocol.split(',')[0].trim() : request.protocol;
+  const isSameOrigin = origin === `${protocol}://${request.get('host')}`;
+  const isConfiguredOrigin = configuredFrontendOrigins().includes(origin)
+    || (process.env.NODE_ENV !== 'production' && origin === 'http://localhost:5173');
+  if (!isSameOrigin && !isConfiguredOrigin) {
+    return response.status(403).json({ message: 'This origin is not allowed.' });
+  }
+
+  response.setHeader('Access-Control-Allow-Origin', origin);
+  response.setHeader('Access-Control-Allow-Credentials', 'true');
+  response.setHeader('Vary', 'Origin');
+  if (request.method === 'OPTIONS') {
+    response.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return response.status(204).end();
+  }
+  return next();
+});
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 app.use('/admin', express.static(path.join(__dirname, '../admin-frontend/dist')));
